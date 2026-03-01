@@ -1,0 +1,204 @@
+import React, { useState, useEffect, useRef } from 'react';
+import '../styles/Chatbot.css';
+
+// ---------------------------------------------------------
+// 🔴 STEP 1: PASTE YOUR NGROK LINK HERE (Keep the /chat at the end)
+// Example: "https://a1b2-34-56.ngrok-free.app/chat"
+const API_URL = "https://isabell-soapless-rhoda.ngrok-free.dev/chat";
+// ---------------------------------------------------------
+
+// --- Icons ---
+const ChatIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" width="24" height="24">
+        <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-2.5a2 2 0 0 0-1.6.8L8 14.333 6.1 11.8a2 2 0 0 0-1.6-.8H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5a1 1 0 0 1 .8.4l1.9 2.533a1 1 0 0 0 1.6 0l1.9-2.533a1 1 0 0 1 .8-.4H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+    </svg>
+);
+
+const MicIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
+        <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z"/>
+    </svg>
+);
+
+const SendIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+    </svg>
+);
+
+// --- Main Component ---
+const Chatbot = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([
+        { id: 1, text: 'Vanakkam! Welcome to Lifeline. How can I help you today?', sender: 'bot' }
+    ]);
+    const [inputValue, setInputValue] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // New loading state
+
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isLoading]);
+
+    const toggleChat = () => {
+        setIsOpen(!isOpen);
+    };
+
+    // --- Voice to Text Logic ---
+    const handleAudioClick = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Your browser does not support Voice to Text. Please use Google Chrome.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-IN'; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        if (!isListening) {
+            recognition.start();
+            setIsListening(true);
+        } else {
+            recognition.stop();
+            setIsListening(false);
+        }
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setInputValue(transcript);
+            setIsListening(false);
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            setIsListening(false);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            setIsListening(false);
+        };
+    };
+
+    // --- 🔴 CHANGED: Handle Send Message (Connects to Python Backend) ---
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        if (inputValue.trim() === '') return;
+
+        // 1. Add User Message immediately
+        const userMessage = { id: Date.now(), text: inputValue, sender: 'user' };
+        setMessages(prev => [...prev, userMessage]);
+        
+        const messageToSend = inputValue; // Store text to send
+        setInputValue(''); // Clear input box
+        setIsLoading(true); // Show loading state
+
+        try {
+            // 2. Send to Google Colab / Ngrok
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: messageToSend }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            // 3. Add Bot Response
+            const botMessage = { id: Date.now() + 1, text: data.reply, sender: 'bot' };
+            setMessages(prev => [...prev, botMessage]);
+
+        } catch (error) {
+            console.error("Error connecting to AI:", error);
+            const errorMessage = { id: Date.now() + 1, text: "Sorry, I am having trouble connecting to the server. Please check if the Colab backend is running.", sender: 'bot' };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <>
+            {!isOpen && (
+                <button onClick={toggleChat} className="chat-toggle-button" aria-label="Open chat">
+                    <div className="chat-button-text">Ask Lifeline</div>
+                    <ChatIcon />
+                </button>
+            )}
+
+            <div className={`chat-full-page-overlay ${isOpen ? 'open' : ''}`}>
+                <main className="chat-main-area">
+                    <header className="chat-main-header">
+                        <h3>Lifeline AI</h3>
+                        <button onClick={toggleChat} className="chat-close-btn" aria-label="Close chat">✕</button>
+                    </header>
+
+                    <div className="chat-messages-container">
+                        {messages.map(msg => (
+                            <div key={msg.id} className={`chat-message-row ${msg.sender}`}>
+                                <div className="message-bubble">
+                                    {msg.text}
+                                </div>
+                            </div>
+                        ))}
+                        
+                        {/* Show unique typing indicator if waiting for AI */}
+                        {isLoading && (
+                             <div className="chat-message-row bot">
+                                <div className="message-bubble typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    <div className="chat-input-container">
+                        <form className="input-wrapper-flat" onSubmit={handleSendMessage}>
+                            <input
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder={isListening ? "Listening..." : "Ask anything about blood donation..."}
+                                disabled={isLoading} // Disable input while waiting
+                            />
+                            
+                            <button 
+                                type="button" 
+                                className={`action-btn audio-btn ${isListening ? 'listening' : ''}`} 
+                                onClick={handleAudioClick} 
+                                title="Use Microphone"
+                            >
+                                <MicIcon />
+                            </button>
+
+                            <button type="submit" className="action-btn send-btn" disabled={!inputValue.trim() || isLoading}>
+                                <SendIcon />
+                            </button>
+                        </form>
+                        <p className="disclaimer-text">Lifeline AI Assistant</p>
+                    </div>
+                </main>
+            </div>
+        </>
+    );
+};
+
+export default Chatbot;

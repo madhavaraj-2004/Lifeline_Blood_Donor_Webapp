@@ -1,0 +1,303 @@
+.search-container {
+  min-height: 85vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  padding: 50px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+}
+
+.search-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(230, 57, 70, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.search-card {
+  background: white;
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: 650px;
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(230, 57, 70, 0.08);
+}
+
+.search-card h1 {
+  color: #e63946;
+  margin-bottom: 12px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.search-card > p {
+  color: #666;
+  margin-bottom: 35px;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 14px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: #f8f9fa;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #bbb;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #e63946;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+  transform: translateY(-2px);
+}
+
+.search-btn {
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #e63946 0%, #c9184a 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.search-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d62828 0%, #b81c2e 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(230, 57, 70, 0.3);
+}
+
+.search-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.search-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  padding: 15px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid #f5c6cb;
+  font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+
+.success-message {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  padding: 15px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid #c3e6cb;
+  font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.results-section {
+  margin-top: 40px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.results-section h2 {
+  color: #e63946;
+  font-size: 1.7rem;
+  margin-bottom: 25px;
+  border-bottom: 3px solid #e63946;
+  padding-bottom: 15px;
+  font-weight: 800;
+}
+
+.inventory-info {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border-left: 5px solid #e63946;
+}
+
+.inventory-info p {
+  margin: 10px 0;
+  color: #333;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.donors-list {
+  margin-top: 30px;
+}
+
+.donors-list h3 {
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.donor-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  border-left: 5px solid #e63946;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  border-left: 5px solid #e63946;
+}
+
+.donor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.donor-card p {
+  margin: 8px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .search-card {
+    padding: 30px;
+    max-width: 100%;
+  }
+
+  .search-card h1 {
+    font-size: 1.8rem;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+  }
+
+  .results-section h2 {
+    font-size: 1.4rem;
+  }
+}
+
+.donor-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.donor-card h4 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.donor-card p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.donor-card a {
+  color: #dc3545;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.donor-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .search-card {
+    padding: 25px;
+  }
+
+  .search-card h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-group {
+    gap: 8px;
+  }
+}
